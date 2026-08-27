@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VariantSage &mdash; Genetic Counselor Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .case-list-item {
+      display:flex; align-items:flex-start; gap:12px;
+      padding:12px 16px; border-bottom:1px solid var(--border);
+      cursor:pointer; transition:background var(--transition);
+    }
+    .case-list-item:hover { background:var(--bg-subtle); }
+    .case-list-item.selected { background:var(--accent-light); border-left:3px solid var(--accent); }
+    .case-list-item:last-child { border-bottom:none; }
+    .variant-row {
+      display:grid; grid-template-columns:2fr 1.5fr 2fr 0.8fr 0.8fr;
+      gap:8px; padding:10px 14px; border-bottom:1px solid var(--border);
+      align-items:center; font-size:13px;
+    }
+    .variant-row.header { font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; background:var(--bg-subtle); }
+    .variant-row:not(.header) { cursor:pointer; transition:background var(--transition); }
+    .variant-row:not(.header):hover { background:var(--bg-subtle); }
+    .detail-section { background:var(--bg-white); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar" id="topbar"></header>
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#fffbeb;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <div class="stat-label">Pending Review</div>
+          <div class="stat-value" style="color:#d97706;">3</div>
+          <div class="stat-delta delta-down">Action required</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#eff6ff;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          <div class="stat-label">Awaiting Approval</div>
+          <div class="stat-value" style="color:#2563eb;">2</div>
+          <div class="stat-delta delta-neutral">Data completeness check</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#f5f3ff;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="stat-label">Reports to Approve</div>
+          <div class="stat-value" style="color:#7c3aed;">1</div>
+          <div class="stat-delta delta-neutral">Awaiting sign-off</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#f0fdf4;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="stat-label">Approved Today</div>
+          <div class="stat-value" style="color:#16a34a;">2</div>
+          <div class="stat-delta delta-up">Released to doctors</div>
+        </div>
+      </div>
+
+      <div class="left-heavy">
+        <!-- Left: Queue + Pipeline -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Case Queue -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Review Queue</div><div class="card-sub">Select a case to view details</div></div>
+            </div>
+            <div class="tabs" style="padding:0 16px;margin:0;" id="queueTabs">
+              <div class="tab-item active" onclick="switchTab('data',this)">Data Validation (2)</div>
+              <div class="tab-item" onclick="switchTab('reports',this)">Report Approval (1)</div>
+              <div class="tab-item" onclick="switchTab('history',this)">History</div>
+            </div>
+
+            <div id="tab-data">
+              <div class="case-list-item selected" onclick="selectCase(this,'VS-1044')" id="caseItem-VS-1044">
+                <div class="status-dot status-dot-red" style="margin-top:5px;flex-shrink:0;"></div>
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="fw-600">Priya Sharma</span>
+                    <span class="font-mono text-xs text-muted">VS-1044</span>
+                    <span class="badge badge-pending" style="margin-left:auto;">Waiting</span>
+                  </div>
+                  <div class="text-sm text-muted" style="margin-top:3px;">TP53 &middot; c.817C&gt;T &middot; VCF uploaded, clinical history missing</div>
+                  <div class="text-xs text-muted" style="margin-top:2px;">Aug 25, 2026 &middot; 52y &middot; F</div>
+                </div>
+              </div>
+              <div class="case-list-item" onclick="selectCase(this,'VS-1045')" id="caseItem-VS-1045">
+                <div class="status-dot status-dot-amber" style="margin-top:5px;flex-shrink:0;"></div>
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="fw-600">Mohammed Al-Rashid</span>
+                    <span class="font-mono text-xs text-muted">VS-1045</span>
+                    <span class="badge badge-pending" style="margin-left:auto;">Waiting</span>
+                  </div>
+                  <div class="text-sm text-muted" style="margin-top:3px;">MLH1 &middot; c.1852_1854del &middot; VCF processing, clinical notes received</div>
+                  <div class="text-xs text-muted" style="margin-top:2px;">Aug 26, 2026 &middot; 29y &middot; M</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="tab-reports" style="display:none;">
+              <div class="case-list-item" onclick="selectCase(this,'VS-1046')" id="caseItem-VS-1046">
+                <div class="status-dot status-dot-blue" style="margin-top:5px;flex-shrink:0;"></div>
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="fw-600">Elena Kowalski</span>
+                    <span class="font-mono text-xs text-muted">VS-1046</span>
+                    <span class="badge badge-review" style="margin-left:auto;">In Review</span>
+                  </div>
+                  <div class="text-sm text-muted" style="margin-top:3px;">EGFR &middot; p.Leu858Arg &middot; Analysis complete &mdash; report awaiting approval</div>
+                  <div class="text-xs text-muted" style="margin-top:2px;">Completed Aug 24 &middot; 41y &middot; F &middot; Confidence: 99%</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="tab-history" style="display:none;">
+              <div style="padding:14px 16px;">
+                <div class="activity-feed">
+                  <div class="activity-item"><div class="activity-dot" style="background:#16a34a;"></div><div class="activity-body"><div class="activity-text"><strong>VS-1042</strong> Sarah Mitchell &mdash; BRCA2 Pathogenic &mdash; Approved &amp; released</div><div class="activity-time">Aug 25, 2026</div></div></div>
+                  <div class="activity-item"><div class="activity-dot" style="background:#16a34a;"></div><div class="activity-body"><div class="activity-text"><strong>VS-1039</strong> David Kim &mdash; PALB2 Likely Pathogenic &mdash; Approved</div><div class="activity-time">Aug 23, 2026</div></div></div>
+                  <div class="activity-item"><div class="activity-dot" style="background:#dc2626;"></div><div class="activity-body"><div class="activity-text"><strong>VS-1037</strong> Meera Pillai &mdash; MUTYH VUS &mdash; Revision requested</div><div class="activity-time">Aug 22, 2026</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline Status -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pipeline Status</div>
+              <div class="card-actions"><span class="live-dot"></span><span class="text-xs text-muted" style="margin-left:4px;">Live</span></div>
+            </div>
+            <div class="card-body" style="padding:8px 18px;">
+              <div class="pipeline-step"><div class="step-num step-done"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div><div class="step-label">VS-1042 &mdash; Complete &middot; BRCA2 Pathogenic</div><div class="step-time">Aug 25</div></div>
+              <div class="pipeline-step"><div class="step-num step-running" style="font-size:9px;font-weight:700;">23%</div><div class="step-label">VS-1043 &mdash; Running &middot; CFTR</div><div class="step-time">~8 min</div></div>
+              <div class="pipeline-step"><div class="step-num step-pending">3</div><div class="step-label">VS-1044 &mdash; Blocked &middot; Missing clinical history</div><div class="step-time">Blocked</div></div>
+              <div class="pipeline-step"><div class="step-num step-pending">4</div><div class="step-label">VS-1045 &mdash; Waiting &middot; VCF processing</div><div class="step-time">~3 min</div></div>
+              <div class="pipeline-step"><div class="step-num step-done"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div><div class="step-label">VS-1046 &mdash; Complete &middot; EGFR Pathogenic</div><div class="step-time">Aug 24</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Detail Panel -->
+        <div>
+          <!-- Data Validation Detail (VS-1044) -->
+          <div class="detail-section" id="dataDetail">
+            <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg-subtle);display:flex;align-items:center;gap:12px;">
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:700;color:#0f172a;">Priya Sharma <span class="font-mono text-sm text-muted" style="font-weight:400;">VS-1044</span></div>
+                <div class="text-sm text-muted">52y &middot; F &middot; MRN-84523 &middot; TP53 &middot; c.817C&gt;T</div>
+              </div>
+              <span class="badge badge-pending">Awaiting Data</span>
+            </div>
+
+            <div style="padding:16px 18px;">
+              <div class="tabs" id="detailTabs" style="margin-bottom:16px;">
+                <div class="tab-item active" onclick="switchDetailTab('overview',this)">Overview</div>
+                <div class="tab-item" onclick="switchDetailTab('hpo',this)">HPO Terms</div>
+                <div class="tab-item" onclick="switchDetailTab('vcf',this)">VCF Info</div>
+              </div>
+
+              <div id="dtab-overview">
+                <div class="alert alert-warning mb-12">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <span>Clinical history not yet submitted by the doctor. Analysis is blocked.</span>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                  <div style="padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    <div class="text-xs text-muted mb-4">VCF File</div>
+                    <div class="completeness-row"><span class="check-yes">&#10003;</span><span class="text-sm">Uploaded &middot; 12.1 MB</span></div>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    <div class="text-xs text-muted mb-4">Clinical History</div>
+                    <div class="completeness-row"><span class="check-no">&#10007;</span><span class="text-sm text-danger">Not submitted</span></div>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    <div class="text-xs text-muted mb-4">HPO Terms</div>
+                    <div class="completeness-row"><span class="check-wait">&#9888;</span><span class="text-sm">2 auto-suggested</span></div>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    <div class="text-xs text-muted mb-4">Reference Genome</div>
+                    <div class="completeness-row"><span class="check-yes">&#10003;</span><span class="text-sm">GRCh38</span></div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="form-label">Auto-suggested HPO Terms</div>
+                  <div class="hpo-tag-list">
+                    <span class="hpo-tag">HP:0003002 <span class="hpo-label">Breast carcinoma</span></span>
+                    <span class="hpo-tag">HP:0000786 <span class="hpo-label">Primary amenorrhea</span></span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="form-label">Counselor Notes</div>
+                  <textarea class="form-control" placeholder="Add review notes for clinical record..." style="min-height:72px;"></textarea>
+                </div>
+
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="sendReminder()">Send Reminder to Doctor</button>
+                  <button class="btn btn-ghost" style="flex:1;justify-content:center;opacity:.5;cursor:not-allowed;" onclick="alert('Data incomplete. Waiting for clinical history.')">Approve &amp; Run Pipeline</button>
+                </div>
+              </div>
+
+              <div id="dtab-hpo" style="display:none;">
+                <div class="form-group">
+                  <div class="form-label">Patient HPO Terms</div>
+                  <div class="hpo-tag-list">
+                    <span class="hpo-tag">HP:0003002 <span class="hpo-label">Breast carcinoma</span></span>
+                    <span class="hpo-tag">HP:0000786 <span class="hpo-label">Primary amenorrhea</span></span>
+                  </div>
+                </div>
+                <div class="form-group mt-16">
+                  <div class="form-label">Add HPO Term</div>
+                  <div style="display:flex;gap:8px;">
+                    <input class="form-control" placeholder="e.g. HP:0002664" id="addHpoInput" />
+                    <button class="btn btn-ghost" onclick="addHpo()">Add</button>
+                  </div>
+                </div>
+                <div class="alert alert-info mt-12">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <span>HPO terms are matched against Orphanet and OMIM disease databases for variant prioritisation.</span>
+                </div>
+              </div>
+
+              <div id="dtab-vcf" style="display:none;">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">File</span><span class="text-sm font-mono">priya_sharma_WGS_hg38.vcf.gz</span></div>
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">Size</span><span class="text-sm">12.1 MB</span></div>
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">Reference</span><span class="text-sm">GRCh38 (hg38)</span></div>
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">Uploaded by</span><span class="text-sm">Rajesh Nair</span></div>
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">Raw variants</span><span class="text-sm">4,782</span></div>
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">Post-filter</span><span class="text-sm">~142 pass frequency threshold</span></div>
+                  <div class="flex-between" style="padding:9px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);"><span class="text-sm text-muted">QC Status</span><span class="badge badge-complete">Passed</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Report Approval (VS-1046) -->
+          <div class="detail-section mt-16" id="reportApproval" style="display:none;">
+            <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg-subtle);display:flex;align-items:center;gap:12px;">
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:700;color:#0f172a;">Elena Kowalski <span class="font-mono text-sm text-muted" style="font-weight:400;">VS-1046</span></div>
+                <div class="text-sm text-muted">41y &middot; F &middot; EGFR &middot; p.Leu858Arg &middot; Non-small cell lung carcinoma</div>
+              </div>
+              <span class="badge badge-review" id="approvalBadge">In Review</span>
+            </div>
+            <div style="padding:18px;">
+              <div class="alert alert-info mb-16">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span>AI analysis complete. Overall confidence: <strong>99%</strong>. Review the evidence below before approving.</span>
+              </div>
+
+              <div class="variant-row header">
+                <div>Gene / Variant</div><div>Classification</div><div>ACMG Criteria</div><div>Conf.</div><div>Detail</div>
+              </div>
+              <div class="variant-row">
+                <div><div class="fw-600 font-mono" style="color:#0d9488;font-size:12.5px;">EGFR</div><div class="text-xs text-muted font-mono">p.Leu858Arg (c.2573T&gt;G)</div></div>
+                <div><span class="badge badge-pathogenic">Pathogenic</span></div>
+                <div><div class="acmg-pills"><span class="acmg-pill acmg-strong-p">PS1</span><span class="acmg-pill acmg-moderate-p">PM5</span><span class="acmg-pill acmg-support-p">PP3</span><span class="acmg-pill acmg-support-p">PP5</span></div></div>
+                <div><strong style="color:#16a34a;">99%</strong></div>
+                <div><button class="btn btn-ghost btn-sm" onclick="openVariantModal()">View</button></div>
+              </div>
+
+              <div style="margin-top:14px;padding:12px 14px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                <div class="text-xs text-muted mb-4" style="font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Clinical Actionability</div>
+                <div class="text-sm text-secondary">EGFR L858R is a validated oncogenic driver (Tier I, ESMO/ASCO). FDA-approved targeted therapies: erlotinib, gefitinib, osimertinib. NCCN Category 1 evidence for molecular targeted therapy in NSCLC.</div>
+              </div>
+
+              <div class="form-group mt-16">
+                <div class="form-label">Counselor Sign-off Notes</div>
+                <textarea class="form-control" id="approvalNotes" placeholder="Add your review notes before approving..." style="min-height:72px;"></textarea>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;" onclick="rejectReport()">Request Revision</button>
+                <button class="btn btn-success" style="flex:1;justify-content:center;" id="approveBtn" onclick="approveReport()">Approve &amp; Release to Doctor</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Variant Detail Modal -->
+<div class="modal-overlay" id="variantModal">
+  <div class="modal" style="width:540px;">
+    <div class="modal-header">
+      <div><div class="modal-title">EGFR &middot; p.Leu858Arg &mdash; Variant Evidence</div><div class="text-sm text-muted">VS-1046 &middot; Elena Kowalski</div></div>
+      <button class="modal-close" onclick="document.getElementById('variantModal').classList.remove('open')">&#215;</button>
+    </div>
+    <div class="modal-body" style="max-height:65vh;overflow-y:auto;">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span class="acmg-pill acmg-strong-p" style="margin-top:1px;flex-shrink:0;">PS1</span>
+          <div><div class="text-sm fw-600">Strong Pathogenic</div><div class="text-sm text-muted">Same amino acid change as established pathogenic p.L858R variant. 312 ClinVar submissions.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span class="acmg-pill acmg-moderate-p" style="margin-top:1px;flex-shrink:0;">PM5</span>
+          <div><div class="text-sm fw-600">Moderate Pathogenic</div><div class="text-sm text-muted">Novel missense at residue where a different pathogenic missense is known (p.L858P).</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span class="acmg-pill acmg-support-p" style="margin-top:1px;flex-shrink:0;">PP3</span>
+          <div><div class="text-sm fw-600">Supporting Pathogenic</div><div class="text-sm text-muted">SIFT=0.001 (deleterious), PolyPhen2=0.998 (probably damaging), CADD=34.7.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span class="acmg-pill acmg-support-p" style="margin-top:1px;flex-shrink:0;">PP5</span>
+          <div><div class="text-sm fw-600">Supporting Pathogenic</div><div class="text-sm text-muted">312 ClinVar P/LP submissions. FDA-approved companion diagnostic. No conflicting interpretations.</div></div>
+        </div>
+      </div>
+      <div style="padding:10px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div class="flex-between"><span class="text-sm text-muted">gnomAD Allele Frequency</span><span class="text-sm fw-600" style="color:#16a34a;font-family:'JetBrains Mono',monospace;">Not observed (0 / 251,378)</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('variantModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  renderSidebar(document.getElementById('sidebar'), 'counselor', 'review');
+  renderTopbar(document.getElementById('topbar'), 'Genetic Counselor Dashboard', 'Dr. Preethi Menon');
+
+  function switchTab(name, el) {
+    ['data','reports','history'].forEach(t => document.getElementById('tab-' + t).style.display = t===name ? '' : 'none');
+    document.querySelectorAll('#queueTabs .tab-item').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    if (name === 'reports') {
+      document.getElementById('reportApproval').style.display = '';
+      document.getElementById('dataDetail').style.display = 'none';
+    } else {
+      document.getElementById('reportApproval').style.display = 'none';
+      document.getElementById('dataDetail').style.display = '';
+    }
+  }
+
+  function switchDetailTab(name, el) {
+    ['overview','hpo','vcf'].forEach(t => document.getElementById('dtab-' + t).style.display = t===name ? '' : 'none');
+    document.querySelectorAll('#detailTabs .tab-item').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function selectCase(el, id) {
+    document.querySelectorAll('.case-list-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function sendReminder() { alert('Reminder sent to Dr. Ananya Krishnan for VS-1044 (Priya Sharma).'); }
+
+  function approveReport() {
+    const btn = document.getElementById('approveBtn');
+    btn.innerHTML = '<span class="spinner"></span> Approving...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = 'Approved &amp; Released';
+      btn.disabled = false;
+      document.getElementById('approvalBadge').textContent = 'Approved';
+      document.getElementById('approvalBadge').className = 'badge badge-approved';
+      document.querySelector('#reportApproval .alert-info').className = 'alert alert-success';
+      document.querySelector('#reportApproval .alert-success').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Report approved and released to <strong>Dr. Ananya Krishnan</strong>. Doctor has been notified.</span>';
+    }, 1200);
+  }
+
+  function rejectReport() { alert('Report returned for revision. Team has been notified.'); }
+  function openVariantModal() { document.getElementById('variantModal').classList.add('open'); }
+  function addHpo() { const v = document.getElementById('addHpoInput').value.trim(); if (!v.startsWith('HP:')) { alert('Enter a valid HPO ID e.g. HP:0002664'); return; } alert('HPO term ' + v + ' added.'); document.getElementById('addHpoInput').value = ''; }
+</script>
+</body>
+</html>

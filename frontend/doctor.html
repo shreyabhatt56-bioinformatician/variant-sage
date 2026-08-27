@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VariantSage &mdash; Doctor Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar" id="topbar"></header>
+    <div class="page-body">
+
+      <!-- Alert Banner -->
+      <div class="alert alert-success mb-16" id="reportBanner" style="justify-content:space-between;">
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="margin-top:1px;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span><strong>Report Ready &mdash;</strong> Sarah Mitchell (VS-1042): BRCA2 Pathogenic report approved. Click her row to view.</span>
+        </div>
+        <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:inherit;font-size:16px;line-height:1;padding:0 0 0 12px;">&#215;</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#eff6ff;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="stat-label">My Patients</div>
+          <div class="stat-value">5</div>
+          <div class="stat-delta delta-up">2 new this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#f0fdf4;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="stat-label">Reports Ready</div>
+          <div class="stat-value" style="color:#16a34a;">2</div>
+          <div class="stat-delta delta-neutral">Approved &amp; released</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#fffbeb;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="stat-label">Awaiting History</div>
+          <div class="stat-value" style="color:#d97706;">1</div>
+          <div class="stat-delta delta-down">Action required</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#eff6ff;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+          <div class="stat-label">In Analysis</div>
+          <div class="stat-value" style="color:#2563eb;">2</div>
+          <div class="stat-delta delta-neutral">Pipeline running</div>
+        </div>
+      </div>
+
+      <!-- Main layout -->
+      <div class="content-split">
+
+        <!-- Left: Table + Report Viewer -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">My Patients</div>
+                <div class="card-sub">Click a row to view report or submit clinical history</div>
+              </div>
+              <div class="card-actions">
+                <div class="select-wrapper">
+                  <select class="form-select" style="width:130px;padding:5px 10px;">
+                    <option>All Status</option>
+                    <option>Report Ready</option>
+                    <option>Pending</option>
+                    <option>In Analysis</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Sample ID</th><th>Patient</th><th>Gene / Variant</th>
+                  <th>Clinical Hx</th><th>Report Status</th>
+                </tr>
+              </thead>
+              <tbody id="patientTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Report viewer -->
+          <div class="card" id="reportViewer" style="display:none;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" id="reportTitle">Variant Report</div>
+                <div class="card-sub" id="reportSub"></div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('reportViewer').style.display='none'">Close</button>
+                <button class="btn btn-primary btn-sm" onclick="alert('Report downloaded as PDF.')">Download PDF</button>
+              </div>
+            </div>
+            <div class="card-body" id="reportBody"></div>
+          </div>
+        </div>
+
+        <!-- Right: Submit Form + Notifications -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Submit Clinical History</div>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-warning mb-12" id="pendingAlert">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span><strong>Action required:</strong> Priya Sharma (VS-1044) is awaiting clinical history.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Patient</label>
+                <div class="select-wrapper">
+                  <select class="form-select" id="patientSelectForm">
+                    <option value="">Select patient...</option>
+                    <option value="VS-1042">VS-1042 &mdash; Sarah Mitchell</option>
+                    <option value="VS-1043">VS-1043 &mdash; James Chen</option>
+                    <option value="VS-1044" selected>VS-1044 &mdash; Priya Sharma (pending)</option>
+                    <option value="VS-1045">VS-1045 &mdash; Mohammed Al-Rashid</option>
+                    <option value="VS-1046">VS-1046 &mdash; Elena Kowalski</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Clinical Notes</label>
+                <textarea class="form-control" id="clinicalNotes" placeholder="Describe presenting symptoms, medical and family history, reason for referral..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">HPO Terms <span style="color:#94a3b8;font-weight:400;">(comma-separated)</span></label>
+                <input class="form-control" id="hpoInput" placeholder="e.g. HP:0003002, HP:0000786" />
+                <div style="margin-top:6px;" id="hpoPreview"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Referring Specialty</label>
+                <div class="select-wrapper">
+                  <select class="form-select">
+                    <option>Oncology</option><option>Clinical Genetics</option>
+                    <option>Pediatrics</option><option>Cardiology</option><option>Neurology</option>
+                  </select>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" onclick="submitHistory(event)" style="width:100%;justify-content:center;">
+                Submit Clinical History
+              </button>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Notifications</div>
+              <div class="card-actions"><span class="badge badge-running">3 unread</span></div>
+            </div>
+            <div class="notif-list">
+              <div class="notif-item unread">
+                <div class="notif-icon-wrap" style="background:#f0fdf4;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div>
+                  <div class="notif-title">Report Ready &mdash; Sarah Mitchell</div>
+                  <div class="notif-desc">VS-1042 BRCA2 Pathogenic report approved.</div>
+                  <div class="notif-time">5 minutes ago</div>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-icon-wrap" style="background:#fffbeb;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div>
+                  <div class="notif-title">Action Required &mdash; Priya Sharma</div>
+                  <div class="notif-desc">Clinical history needed before analysis can begin.</div>
+                  <div class="notif-time">38 minutes ago</div>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-icon-wrap" style="background:#eff6ff;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </div>
+                <div>
+                  <div class="notif-title">Analysis Started &mdash; James Chen</div>
+                  <div class="notif-desc">VS-1043 CFTR pipeline running. ~8 min remaining.</div>
+                  <div class="notif-time">12 minutes ago</div>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon-wrap" style="background:#f5f3ff;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div>
+                  <div class="notif-title">Under Counselor Review &mdash; Elena Kowalski</div>
+                  <div class="notif-desc">VS-1046 EGFR report pending approval.</div>
+                  <div class="notif-time">2 hours ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  renderSidebar(document.getElementById('sidebar'), 'doctor', 'overview');
+  renderTopbar(document.getElementById('topbar'), 'Doctor Dashboard', 'Welcome back, Dr. Ananya Krishnan');
+
+  const tbody = document.getElementById('patientTableBody');
+  VS.patients.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="font-mono text-sm" style="color:#2563eb;font-weight:600;">${p.id}</span></td>
+      <td><span class="fw-600" style="color:#0f172a;">${p.name}</span><br><span class="text-xs text-muted">${p.age}y &middot; ${p.gender}</span></td>
+      <td><span class="font-mono text-sm fw-600" style="color:#0d9488;">${p.gene}</span><br><span class="text-xs text-muted font-mono">${p.variant}</span></td>
+      <td>${getStatusBadge(p.clinicalStatus)}</td>
+      <td>${getStatusBadge(p.reportStatus)}</td>
+    `;
+    tr.addEventListener('click', () => openPatient(p, tr));
+    tbody.appendChild(tr);
+  });
+
+  function openPatient(p, tr) {
+    document.querySelectorAll('#patientTableBody tr').forEach(r => r.classList.remove('selected'));
+    tr.classList.add('selected');
+    const details = VS.variantDetails[p.id];
+    const rv = document.getElementById('reportViewer');
+    if ((p.reportStatus === 'approved' || p.reportStatus === 'review') && details) {
+      document.getElementById('reportTitle').textContent = p.id + ' \u2014 ' + p.name + ' \u2014 ' + p.gene;
+      document.getElementById('reportSub').textContent = 'Approved by Dr. Preethi Menon \u00B7 ' + p.classification + ' \u00B7 Confidence: ' + p.confidence + '%';
+      document.getElementById('reportBody').innerHTML = buildReport(p, details);
+      rv.style.display = '';
+      rv.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    } else {
+      rv.style.display = 'none';
+    }
+    document.getElementById('patientSelectForm').value = p.id;
+    if (p.clinicalNotes) document.getElementById('clinicalNotes').value = p.clinicalNotes;
+    if (p.hpoTerms && p.hpoTerms.length) { document.getElementById('hpoInput').value = p.hpoTerms.join(', '); updateHpoPreview(); }
+  }
+
+  function buildReport(p, d) {
+    const criteriaRows = d.criteria_path.map(c => {
+      const cls = c.level==='Very Strong'||c.level==='Strong' ? 'acmg-strong-p' : c.level==='Moderate' ? 'acmg-moderate-p' : 'acmg-support-p';
+      return `<tr><td><span class="acmg-pill ${cls}">${c.code}</span></td><td class="text-sm text-secondary">${c.level}</td><td class="text-sm" style="color:#475569;">${c.desc}</td></tr>`;
+    }).join('');
+    const cc = getConfColor(p.confidence);
+    return `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;padding:14px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;">
+        <div><div class="text-xs text-muted mb-4">Patient</div><div class="fw-600">${p.name}</div><div class="text-sm text-muted">${p.mrn} &middot; ${p.age}y &middot; ${p.gender}</div></div>
+        <div><div class="text-xs text-muted mb-4">Classification</div>${getClassBadge(p.classification)}<div class="text-sm text-muted mt-8">Confidence: ${p.confidence}%</div></div>
+        <div><div class="text-xs text-muted mb-4">Gene / Variant</div><div class="font-mono fw-600" style="color:#0d9488;">${p.gene}</div><div class="font-mono text-sm text-muted">${p.variant}</div></div>
+        <div><div class="text-xs text-muted mb-4">Inheritance</div><div class="fw-600">${d.inheritance}</div></div>
+      </div>
+      <div class="mb-16"><div class="text-xs text-muted mb-8" style="font-weight:600;letter-spacing:.06em;text-transform:uppercase;">ACMG/AMP Evidence Criteria</div>
+        <table class="data-table"><thead><tr><th>Code</th><th>Level</th><th>Evidence</th></tr></thead><tbody>${criteriaRows}</tbody></table>
+      </div>
+      <div class="alert alert-info mb-12"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span><strong>Clinical Actionability &mdash;</strong> ${d.clinical_sig}</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1px solid #e2e8f0;">
+        <span class="text-xs text-muted">AI Confidence</span>
+        <div class="confidence-meter" style="flex:1;"><div class="conf-bar"><div class="conf-fill" style="width:${p.confidence}%;background:${cc};"></div></div><div class="conf-label" style="color:${cc};">${p.confidence}%</div></div>
+      </div>`;
+  }
+
+  function updateHpoPreview() {
+    const terms = document.getElementById('hpoInput').value.split(',').map(t=>t.trim()).filter(t=>t.startsWith('HP:'));
+    const preview = document.getElementById('hpoPreview');
+    preview.innerHTML = terms.length ? '<div class="hpo-tag-list">' + terms.map(t=>`<span class="hpo-tag">${t} <span class="hpo-label">${VS.hpoLabels[t]||''}</span></span>`).join('') + '</div>' : '';
+  }
+  document.getElementById('hpoInput').addEventListener('input', updateHpoPreview);
+
+  function submitHistory(e) {
+    const notes = document.getElementById('clinicalNotes').value;
+    if (!notes.trim()) { alert('Please enter clinical notes.'); return; }
+    const btn = e.target;
+    btn.innerHTML = '<span class="spinner"></span> Submitting...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = 'Submitted Successfully';
+      btn.classList.replace('btn-primary','btn-success');
+      document.getElementById('pendingAlert').style.display = 'none';
+      setTimeout(() => { btn.innerHTML = 'Submit Clinical History'; btn.classList.replace('btn-success','btn-primary'); btn.disabled = false; }, 2500);
+    }, 1200);
+  }
+</script>
+</body>
+</html>

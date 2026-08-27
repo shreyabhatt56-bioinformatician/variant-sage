@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VariantSage &mdash; Management Console</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar" id="topbar"></header>
+    <div class="page-body">
+
+      <!-- KPI Stats -->
+      <div class="stats-row mb-20" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#eff6ff;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="stat-label">Total Reports This Week</div>
+          <div class="stat-value" style="color:#2563eb;">847</div>
+          <div class="stat-delta delta-up">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            12% vs last week
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#f0fdf4;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="stat-label">Completed &amp; Released</div>
+          <div class="stat-value" style="color:#16a34a;">721</div>
+          <div class="stat-delta delta-up">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            5% vs last week
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#fffbeb;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="stat-label">Pending / In Progress</div>
+          <div class="stat-value" style="color:#d97706;">126</div>
+          <div class="stat-delta delta-down">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            3% decrease
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background:#f0fdf4;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="stat-label">AI Success Rate</div>
+          <div class="stat-value" style="color:#16a34a;">94%</div>
+          <div class="stat-delta delta-up">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            Highest this month
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col mb-20">
+        <!-- Chart: Volume -->
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Report Volume</div></div>
+            <div class="card-actions">
+              <div class="select-wrapper">
+                <select class="form-select" id="timeframeSelect" onchange="updateChart()" style="padding:4px 10px;font-size:12px;">
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap" style="height:240px;">
+              <canvas id="volumeChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart: Classification -->
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Variant Classifications</div><div class="card-sub">Distribution of released reports (30 days)</div></div>
+          </div>
+          <div class="card-body" style="display:flex;align-items:center;justify-content:center;">
+            <div class="chart-wrap" style="height:240px;width:100%;display:flex;justify-content:center;">
+              <canvas id="donutChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-split">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- User Management -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">User Management</div>
+              <div class="card-actions">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('addUserModal').classList.add('open')">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add User
+                </button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr><th>User</th><th>Role</th><th>Department</th><th>Reports</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Department Breakdown -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Usage by Department</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-600">Oncology</span><span class="text-sm text-muted">45%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:45%;background:#2563eb;"></div></div>
+              </div>
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-600">Clinical Genetics</span><span class="text-sm text-muted">28%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:28%;background:#0d9488;"></div></div>
+              </div>
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-600">Pediatrics</span><span class="text-sm text-muted">18%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:18%;background:#7c3aed;"></div></div>
+              </div>
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-600">Cardiology</span><span class="text-sm text-muted">9%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:9%;background:#d97706;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- System Logs -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">System Logs</div><div class="card-actions"><span class="text-xs text-muted">Live</span></div></div>
+            <div class="card-body" style="padding:10px 14px;background:#1e293b;border-bottom-left-radius:var(--radius-md);border-bottom-right-radius:var(--radius-md);height:300px;overflow-y:auto;font-family:'JetBrains Mono',monospace;">
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">14:32:01</span><span class="log-level log-info">INFO</span><span>Worker-04: Starting pipeline for VS-1043</span></div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">14:31:45</span><span class="log-level log-success">SUCCESS</span><span>Worker-02: Completed analysis for VS-1046</span></div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">14:28:12</span><span class="log-level log-warn">WARN</span><span>API: High latency on PubMed fetching (1240ms)</span></div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">14:15:00</span><span class="log-level log-info">INFO</span><span>System: Garbage collection completed</span></div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">13:59:22</span><span class="log-level log-error">ERROR</span><span>Database: Connection timeout to primary cluster</span></div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">13:59:25</span><span class="log-level log-info">INFO</span><span>Database: Failover to secondary successful</span></div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:#cbd5e1;"><span style="color:#94a3b8;">13:42:10</span><span class="log-level log-success">SUCCESS</span><span>Worker-01: VCF ingestion VS-1044 completed</span></div>
+            </div>
+          </div>
+
+          <!-- Activity Feed -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Activity Feed</div></div>
+            <div class="card-body" style="padding:14px 18px;">
+              <div class="activity-feed" id="activityFeedList"></div>
+            </div>
+          </div>
+
+          <!-- Pipeline Performance -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Pipeline Agent Performance</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-500">Agent Parallelization</span><span class="text-sm font-mono text-muted">100%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:100%;background:#16a34a;"></div></div>
+              </div>
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-500">Debate Phase Skipping (High Conf)</span><span class="text-sm font-mono text-muted">60%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:60%;background:#2563eb;"></div></div>
+              </div>
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-500">Zero-Shot Success Rate</span><span class="text-sm font-mono text-muted">94%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:94%;background:#0d9488;"></div></div>
+              </div>
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm fw-500">GPU Utilization (A100 Cluster)</span><span class="text-sm font-mono text-muted">67%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:67%;background:#7c3aed;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New User</div>
+      <button class="modal-close" onclick="document.getElementById('addUserModal').classList.remove('open')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-control" type="text" placeholder="e.g. Dr. John Doe" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-control" type="email" placeholder="john.doe@hospital.org" />
+      </div>
+      <div class="two-col mb-16">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Role</label>
+          <div class="select-wrapper">
+            <select class="form-select">
+              <option>Doctor</option><option>Lab Supervisor</option>
+              <option>Genetic Counselor</option><option>Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Department</label>
+          <div class="select-wrapper">
+            <select class="form-select">
+              <option>Oncology</option><option>Clinical Genetics</option>
+              <option>Pediatrics</option><option>Cardiology</option>
+              <option>NGS Laboratory</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>An invitation email with a secure setup link will be sent to the user.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('addUserModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="alert('User invited successfully.');document.getElementById('addUserModal').classList.remove('open')">Send Invitation</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  renderSidebar(document.getElementById('sidebar'), 'admin', 'overview');
+  renderTopbar(document.getElementById('topbar'), 'Management Console', 'System overview &middot; Gaurab Banerjee');
+
+  // Render User Table
+  const tb = document.getElementById('userTableBody');
+  VS.systemUsers.forEach(u => {
+    const tr = document.createElement('tr');
+    
+    // get initials
+    let initials = u.name.replace('Dr. ','').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    let bg = '#e2e8f0', c = '#475569';
+    if(u.role==='doctor') { bg='#eff6ff'; c='#2563eb'; }
+    else if(u.role==='lab') { bg='#f0fdfa'; c='#0d9488'; }
+    else if(u.role==='counselor') { bg='#f5f3ff'; c='#7c3aed'; }
+
+    tr.innerHTML = `
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${bg};color:${c};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">${initials}</div>
+          <div>
+            <div class="fw-600" style="color:#0f172a;font-size:13px;">${u.name}</div>
+            <div class="text-xs text-muted">Last active: ${u.lastActive}</div>
+          </div>
+        </div>
+      </td>
+      <td>${getRoleBadge(u.role)}</td>
+      <td><span class="text-sm text-secondary">${u.dept}</span></td>
+      <td><span class="font-mono text-sm fw-600">${u.reports}</span></td>
+      <td>${getStatusBadge(u.status)}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-ghost btn-sm" style="padding:4px;height:auto;" title="Edit">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" style="padding:4px;height:auto;color:#dc2626;" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    `;
+    tb.appendChild(tr);
+  });
+
+  // Render Activity Feed
+  const feed = document.getElementById('activityFeedList');
+  VS.activityFeed.forEach(a => {
+    feed.innerHTML += `
+      <div class="activity-item">
+        <div class="activity-dot" style="background:${a.dot};"></div>
+        <div>
+          <div class="activity-text">${a.text}</div>
+          <div class="activity-time">${a.time}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  // Chart.js Setup
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.color = '#64748b';
+  
+  let volChart;
+  
+  function initCharts() {
+    const ctxVol = document.getElementById('volumeChart').getContext('2d');
+    volChart = new Chart(ctxVol, {
+      type: 'bar',
+      data: {
+        labels: VS.weekDays,
+        datasets: [{
+          label: 'Reports Processed',
+          data: VS.weeklyData,
+          backgroundColor: 'rgba(37, 99, 235, 0.15)',
+          borderColor: '#2563eb',
+          borderWidth: 1.5,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: 'rgba(0,0,0,0.05)' }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    const ctxDonut = document.getElementById('donutChart').getContext('2d');
+    new Chart(ctxDonut, {
+      type: 'doughnut',
+      data: {
+        labels: ['Pathogenic', 'Likely Pathogenic', 'VUS', 'Likely Benign', 'Benign'],
+        datasets: [{
+          data: [215, 178, 241, 119, 94],
+          backgroundColor: ['#dc2626', '#f97316', '#eab308', '#84cc16', '#22c55e'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: { position: 'right', labels: { boxWidth: 12, usePointStyle: true, padding: 16 } }
+        }
+      }
+    });
+  }
+
+  function updateChart() {
+    const isMonth = document.getElementById('timeframeSelect').value === 'month';
+    volChart.data.labels = isMonth ? ['Week 1', 'Week 2', 'Week 3', 'Week 4'] : VS.weekDays;
+    volChart.data.datasets[0].data = isMonth ? [280, 312, 290, 345] : VS.weeklyData;
+    volChart.update();
+  }
+
+  window.addEventListener('load', initCharts);
+</script>
+</body>
+</html>

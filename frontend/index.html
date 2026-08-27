@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VariantSage — Sign In</title>
+  <meta name="description" content="VariantSage: AI-powered ACMG variant classification for clinical genomics." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body { background: #f1f5f9; }
+    .login-page { padding: 24px; }
+    .system-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #f0fdf4; border: 1px solid #86efac;
+      border-radius: 99px; padding: 4px 12px;
+      font-size: 11.5px; font-weight: 500; color: #16a34a;
+      margin-bottom: 24px;
+    }
+    .quick-launch {
+      margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    }
+    .ql-label { width: 100%; text-align: center; font-size: 11px; color: #94a3b8; margin-bottom: 2px; font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m17 6-2.5-2.5"/><path d="m14 8-1-1"/><path d="m7 18 2.5 2.5"/><path d="m3.5 14.5.5.5"/><path d="m20 9 .5.5"/><path d="m6.5 17.5-1-1"/></svg>
+      </div>
+      <div>
+        <div class="login-logo-name">Variant<span>Sage</span></div>
+        <div class="login-tagline">AI Genomics Platform &mdash; v2.4.1</div>
+      </div>
+    </div>
+
+    <div style="text-align:left; margin-bottom:20px;">
+      <div class="system-status">
+        <span class="live-dot"></span>
+        System Operational &mdash; 94% AI Success Rate
+      </div>
+    </div>
+
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Select your role to access your dashboard</div>
+
+    <div class="role-grid">
+      <div class="role-card" onclick="selectRole('doctor')" id="role-doctor">
+        <div class="role-icon-wrap" style="background:#eff6ff;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+        </div>
+        <div class="role-name">Doctor</div>
+        <div class="role-desc">Submit history &middot; View reports</div>
+      </div>
+      <div class="role-card" onclick="selectRole('lab')" id="role-lab">
+        <div class="role-icon-wrap" style="background:#f0fdfa;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M9 3h6l1 9H8z"/><path d="M3 21h18"/><path d="M6 21c0-3.7 1.8-7 4.5-9H14c2.7 2 4.5 5.3 4.5 9"/></svg>
+        </div>
+        <div class="role-name">Lab Supervisor</div>
+        <div class="role-desc">Upload VCF &middot; Monitor samples</div>
+      </div>
+      <div class="role-card" onclick="selectRole('counselor')" id="role-counselor">
+        <div class="role-icon-wrap" style="background:#f5f3ff;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="role-name">Genetic Counselor</div>
+        <div class="role-desc">Review &middot; Approve &middot; Validate</div>
+      </div>
+      <div class="role-card" onclick="selectRole('admin')" id="role-admin">
+        <div class="role-icon-wrap" style="background:#fffbeb;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="role-name">Management</div>
+        <div class="role-desc">System overview &middot; Analytics</div>
+      </div>
+    </div>
+
+    <div class="divider"><span>Enter credentials</span></div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-control" type="email" id="emailInput" placeholder="your.name@hospital.org" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-control" type="password" id="pwdInput" value="demo1234" />
+    </div>
+
+    <button class="btn btn-primary btn-lg" onclick="doLogin()" style="width:100%;justify-content:center;">
+      Sign In to Dashboard
+    </button>
+
+    <div class="quick-launch">
+      <span class="ql-label">Quick Demo Access</span>
+      <button class="btn btn-ghost btn-sm" onclick="loginAs('doctor')">Doctor</button>
+      <button class="btn btn-ghost btn-sm" onclick="loginAs('lab')">Lab Supervisor</button>
+      <button class="btn btn-ghost btn-sm" onclick="loginAs('counselor')">Counselor</button>
+      <button class="btn btn-ghost btn-sm" onclick="loginAs('admin')">Management</button>
+    </div>
+
+    <p style="text-align:center;margin-top:14px;font-size:11.5px;color:#94a3b8;">
+      Demo password: <span style="font-family:'JetBrains Mono',monospace;color:#2563eb;font-weight:600;">demo1234</span>
+    </p>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  let selectedRole = null;
+
+  function selectRole(role) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('role-' + role).classList.add('selected');
+    selectedRole = role;
+    const emailMap = { doctor:'dr.ananya@cityhospital.org', lab:'rajesh.nair@cityhospital.org', counselor:'dr.preethi@cityhospital.org', admin:'gaurab@molsys.ai' };
+    document.getElementById('emailInput').value = emailMap[role];
+  }
+
+  function doLogin() {
+    if (!selectedRole) { alert('Please select your role.'); return; }
+    if (document.getElementById('pwdInput').value !== 'demo1234') { alert('Incorrect password. Use: demo1234'); return; }
+    const btn = document.querySelector('.btn-primary');
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    btn.disabled = true;
+    setTimeout(() => loginAs(selectedRole), 900);
+  }
+</script>
+</body>
+</html>
